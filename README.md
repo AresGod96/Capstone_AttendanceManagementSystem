@@ -56,6 +56,11 @@ We believe this time-saving tool can help teachers, professors and meeting hosts
   --lecture_id       Lecture code 강좌번호
 ```
 
+By default, the attendance record is sorted by name.
+
+However, there are other optional criteria such as by student ID or by attendance time.
+
+
 **Optional arguments**
 ```bash
   -h, --help         show help message and exit
@@ -65,6 +70,22 @@ We believe this time-saving tool can help teachers, professors and meeting hosts
   --reverse          Reverse the list (default: False)
   --ofile            Output .xlsx file name (default: 과목코트_강좌번호)
 ```
+
+Students' image folder directory structure
+
+```
+<path>
+	|
+	|_강동완_1.jpg
+	|
+	|_안홍현_17101222.jpeg
+	|
+	|_응웬민뚜_16101384.jpg
+	|
+
+```
+
+The student images should have the form of ***name_id*** such as ***응웬민뚜_16101384.jpg***
 
 **Run from command line**
 
