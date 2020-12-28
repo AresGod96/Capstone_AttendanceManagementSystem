@@ -12,13 +12,15 @@ A tool for automatically checking attendance of students in a class during onlin
 We believe this time-saving tool can help teachers, professors and meeting hosts manage the attendance list more efficiently.
 
 **Input: Frame from screen**
+
 ![](assets/input.png)
+
 
 **Output: Attendance list in .xlsx format**
+
 ![](assets/ex_output.jpg)
 
-**Output as .xlsx**
-![](assets/input.png)
+
 ## Requirements 
 
   * Python 3.3+
