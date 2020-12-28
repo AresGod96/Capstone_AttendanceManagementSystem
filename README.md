@@ -11,7 +11,14 @@ A tool for automatically checking attendance of students in a class during onlin
 
 We believe this time-saving tool can help teachers, professors and meeting hosts manage the attendance list more efficiently.
 
-![](https://drive.google.com/file/d/1O8FQLnQi43ZpfawdAY-dY3SeIeJWMnGt/view?usp=sharing)
+**Input: Frame from screen**
+![](assets/input.png)
+
+**Output: Attendance list in .xlsx format**
+![](assets/ex_output.jpg)
+
+**Output as .xlsx**
+![](assets/input.png)
 ## Requirements 
 
   * Python 3.3+
@@ -40,3 +47,29 @@ We believe this time-saving tool can help teachers, professors and meeting hosts
   
 ## Usage
 ### Command-Line Interface
+
+**Here is the summary for the required arguments**
+```bash
+  --course_id        Course code 과목코트
+  --lecture_id       Lecture code 강좌번호
+```
+
+**Optional arguments**
+```bash
+  -h, --help         show help message and exit
+  --path 	     Path to students images data set (default: /student_images)
+  --sort_by_id       Sort in ascending order of student ID
+  --sort_by_time     Sort in ascending order of attendance time
+  --reverse          Reverse the list (default: False)
+  --ofile            Output .xlsx file name (default: 과목코트_강좌번호)
+```
+
+**Run from command line**
+
+Below is an example of executing attendance check on **Course 109215 인공지능 Class 31001**.
+
+You could terminate the program by pressing *Esc*.
+
+```bash
+$ python3 attendance.py --course_id 109215 --lecture_id 31001 --sort_by_time
+```
