@@ -119,7 +119,7 @@ if __name__ == "__main__":
                 name = stud_names[match_idx]
                 check_attendance(name, frame_idx)
             else:
-                name = 'Unknown'
+                name = "Unknown"
             print(frame_idx, name, face_dist[match_idx])
 
             if args.show:
@@ -145,11 +145,11 @@ if __name__ == "__main__":
     for idx in range(len(stud_names)):
         name, id = stud_names[idx], stud_id[idx]
         if name in attendance_time:
-            attendance_check.append("Y")
+            attendance_check.append('Y')
             col_time.append(attendance_time[name][0][1])
         else:
-            attendance_check.append("")
-            col_time.append("NaN")
+            attendance_check.append('')
+            col_time.append('NaN')
 
 
     if args.sort_by_id:
@@ -187,9 +187,42 @@ if __name__ == "__main__":
     attendance_data = pd.DataFrame(list(zip(stud_id, stud_names, attendance_check, col_time)), columns=['학번', '이름', '출석', '출석시간'])
     file_name = args.ofile
     if file_name == None:
-        file_name = course_id + "_" + lecture_id + ".xlsx"
+        file_name = course_id + '_' + lecture_id + '.xlsx'
     else:
-        file_name += ".xlsx"
-    attendance_data.to_excel(file_name, index=False)
+        file_name += '.xlsx'
+
+    writer = pd.ExcelWriter(file_name, engine='xlsxwriter')
+    offset = 6
+    attendance_data.to_excel(writer, index=False, sheet_name=lecture_id, startrow=offset, startcol=1)
+    workbook = writer.book
+    worksheet = writer.sheets[lecture_id]
+    worksheet.write('C2', "과목명: " + course_name)
+    worksheet.write('C3', "과목코트: " + course_id + " - " + lecture_id)
+    worksheet.write('C4', "교수명: " + prof_name)
+    worksheet.write('C5', "일정: " + datetime.now().strftime("%Y/%m/%d"))
+    (max_row, max_col) = attendance_data.shape
+    column_settings = [{'header': column} for column in attendance_data.columns]
+
+    style = workbook.add_format()
+    style.set_align('center')
+    style.set_align('vcenter')
+    cell_format = workbook.add_format()
+    cell_format.set_bold()
+    cell_format.set_align('left')
+
+    
+    worksheet.add_table(offset, 1, offset + max_row, max_col, {'columns': column_settings})
+    # 학번 
+    worksheet.set_column(1, 1, 15, style)
+    # 이름 
+    worksheet.set_column(2, 2, 30, style)
+    # 출석  
+    worksheet.set_column(3, 3, 10, style)
+    # 출석시간 
+    worksheet.set_column(4, 4, 30, style)
+
+    for row in range(1, offset - 1):
+        worksheet.set_row(row, None, cell_format)
+    writer.save()
 
     print("Successfully saved attendance list as " + file_name)
