@@ -50,6 +50,7 @@ if __name__ == "__main__":
     parser.add_argument('--sort_by_time', help='학생의 출석 시간별로 출석 리스트를 정렬', action='store_true', default=False)
     parser.add_argument('--reverse', help='출석 리스트의 역순으로 정렬', action='store_true', default=False)
     parser.add_argument('--ofile', help='출력 파일의 이름', default=None)
+    parser.add_argument('--show', help='처리하는 동안 모니터 화면을 표시', action='store_true', default=False)
     args = parser.parse_args()
 
     path = args.path
@@ -58,7 +59,8 @@ if __name__ == "__main__":
     sort_by_name = False
     if not args.sort_by_id and not args.sort_by_time:
         sort_by_name = True
-   
+
+
     try:
         df = pd.read_excel("courses_database.xlsx", converters={"과목코트": str, "강좌번호": str})
     except OSError as err:
@@ -97,6 +99,11 @@ if __name__ == "__main__":
     frame_idx = 0
     while not keyboard.is_pressed('esc'):
         screen = screen_capture()
+        if args.show:
+            scale_percent = 40
+            width = int(screen.shape[1] * scale_percent / 100)
+            height = int(screen.shape[0] * scale_percent / 100)
+            img = cv2.resize(screen, (width, height), interpolation=cv2.INTER_AREA)
         img = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
 
         faces_locations = face_recognition.face_locations(img)
@@ -115,18 +122,22 @@ if __name__ == "__main__":
                 name = 'Unknown'
             print(frame_idx, name, face_dist[match_idx])
 
-            #y1, x2, y2, x1 = face_loc
-            #y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
-            #cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            #cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
-            #cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
+            if args.show:
+                y1, x2, y2, x1 = face_loc
+                y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
+                cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
 
-        #for Webcam
-        #cv2.imshow('screen', img)
-        #if cv2.waitKey(1) & 0xFF == ord('q'):
-        #    break
+        #for Webcam or args.show
+        if args.show:
+            cv2.imshow('screen', img)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
         frame_idx += 1
+
+
 
     # export attendance list to csv
     col_time = []
@@ -148,20 +159,23 @@ if __name__ == "__main__":
                     stud_id[i], stud_id[j] = stud_id[j], stud_id[i]
                     stud_names[i], stud_names[j] = stud_names[j], stud_names[i]
                     col_time[i], col_time[j] = col_time[j], col_time[i]
+                    attendance_check[i], attendance_check[j] = attendance_check[j], attendance_check[i]
     elif args.sort_by_time:
-        for i in range(len(stud_id)):
-            for j in range(i + 1, len(stud_id)):
+        for i in range(len(stud_names)):
+            for j in range(i + 1, len(stud_names)):
                 if col_time[i] > col_time[j]:
                     stud_id[i], stud_id[j] = stud_id[j], stud_id[i]
                     stud_names[i], stud_names[j] = stud_names[j], stud_names[i]
                     col_time[i], col_time[j] = col_time[j], col_time[i]
+                    attendance_check[i], attendance_check[j] = attendance_check[j], attendance_check[i]
     elif sort_by_name:
-        for i in range(len(stud_id)):
-            for j in range(i + 1, len(stud_id)):
+        for i in range(len(stud_names)):
+            for j in range(i + 1, len(stud_names)):
                 if stud_names[i] > stud_names[j]:
                     stud_id[i], stud_id[j] = stud_id[j], stud_id[i]
                     stud_names[i], stud_names[j] = stud_names[j], stud_names[i]
                     col_time[i], col_time[j] = col_time[j], col_time[i]
+                    attendance_check[i], attendance_check[j] = attendance_check[j], attendance_check[i]
 
 
 
@@ -174,6 +188,8 @@ if __name__ == "__main__":
     file_name = args.ofile
     if file_name == None:
         file_name = course_id + "_" + lecture_id + ".xlsx"
+    else:
+        file_name += ".xlsx"
     attendance_data.to_excel(file_name, index=False)
 
-    print("Saved attendance list as " + file_name)
+    print("Successfully saved attendance list as " + file_name)
